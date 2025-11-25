@@ -6,9 +6,10 @@ import { useState } from "react";
 import Dashboard from "./pages/Dashboard.jsx";
 import RegisterIncident from "./pages/RegisterIncident.jsx";
 import ForumIncidentes from "./pages/ForumIncidentes.jsx";
+import RelatorioUnidade from "./pages/RelatorioUnidade.jsx";
 
 // Componentes
-import GraficoIncidentes from "./component/GraficoIncidentes.jsx";
+import GraficoIncidentes from "./components/GraficoIncidentes.jsx";
 
 // Layout
 import RootLayout from "./layout/RootLayout.jsx";
@@ -36,7 +37,7 @@ export default function App() {
           {/* Dashboard inicial */}
           <Route path="/" element={<Dashboard />} />
 
-          {/* Registrar incidente */}
+          {/* Registrar incidente — MANTÉM SUAS PROPS */}
           <Route
             path="/register"
             element={
@@ -48,17 +49,14 @@ export default function App() {
             }
           />
 
-          {/* Fórum de incidentes */}
-          <Route
-            path="/incidentes"
-            element={<ForumIncidentes incidents={incidents} />}
-          />
+          {/* Fórum de incidentes — REMOVIDA A PROP incidents */}
+          <Route path="/incidentes" element={<ForumIncidentes />} />
 
-          {/* Novo gráfico */}
-          <Route
-            path="/grafico"
-            element={<GraficoIncidentes incidents={incidents} />}
-          />
+          {/* Relatório por unidade — REMOVIDA A PROP incidents */}
+          <Route path="/relatorio-unidade" element={<RelatorioUnidade />} />
+
+          {/* Novo gráfico — REMOVIDA A PROP incidents */}
+          <Route path="/grafico" element={<GraficoIncidentes />} />
 
         </Routes>
       </RootLayout>

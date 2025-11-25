@@ -9,10 +9,17 @@ import {
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 
+// 🔥 IMPORTANDO REDUX
+import { useSelector } from "react-redux";
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend, ChartDataLabels);
 
-export default function GraficoIncidentes({ incidents }) {
-  // Conta incidentes por unidade
+export default function GraficoIncidentes() {
+
+  // 🔥 PEGANDO OS INCIDENTES DO REDUX (sem props)
+  const incidents = useSelector((state) => state.incidents.incidents);
+
+  // Conta incidentes por unidade — SUA LÓGICA MANTIDA
   const contagem = incidents.reduce((acc, item) => {
     acc[item.unidade] = (acc[item.unidade] || 0) + 1;
     return acc;
@@ -21,7 +28,7 @@ export default function GraficoIncidentes({ incidents }) {
   const labels = Object.keys(contagem);
   const valores = Object.values(contagem);
 
-  // Gradiente azul estilo Descomplica SP
+  // Gradiente azul estilo Descomplica SP — SUA LÓGICA MANTIDA
   const gradientColor = (ctx) => {
     const chart = ctx.chart;
     const { ctx: canvas } = chart;
@@ -41,7 +48,7 @@ export default function GraficoIncidentes({ incidents }) {
         data: valores,
         backgroundColor: gradientColor,
         borderRadius: 12,
-        maxBarThickness: 60, // 🔥 deixa barras modernas e finas
+        maxBarThickness: 60,
       },
     ],
   };
@@ -49,15 +56,12 @@ export default function GraficoIncidentes({ incidents }) {
   const options = {
     plugins: {
       legend: { display: false },
-
-      // 🔥 Mostra o número em cima da barra
       datalabels: {
         color: "#0033A0",
         anchor: "end",
         align: "end",
         font: { weight: "bold", size: 14 },
       },
-
       tooltip: {
         backgroundColor: "#0033A0",
         titleColor: "#fff",
