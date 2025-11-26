@@ -4,9 +4,11 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 // COMPONENTES REUTILIZADOS
-import InputWrapper from "../components/InputWrapper";
-import SelectUnidade from "../components/SelectUnidade";
-import SelectSecretaria from "../components/SelectSecretaria";
+import InputWrapper from "../components/inputs/InputWrapper";
+import SelectUnidade from "../components/select/SelectUnidade";
+import SelectSecretaria from "../components/select/SelectSecretaria";
+import ButtonExcel from "../components/buttons/ButtonExcel";
+
 import { calcularTempoAberto } from "../utils/calcularTempoAberto";
 
 export default function RelatorioUnidade() {
@@ -19,15 +21,12 @@ export default function RelatorioUnidade() {
   const [dataFim, setDataFim] = useState("");
 
   // ================================
-  //       FILTROS - MODELO SÊNIOR
+  //            FILTROS
   // ================================
   const aplicarFiltros = () => {
     const filtros = [
-      (item) =>
-        !unidadeSelecionada || item.unidade === unidadeSelecionada,
-
-      (item) =>
-        !secretariaSelecionada || item.secretaria === secretariaSelecionada,
+      (item) => !unidadeSelecionada || item.unidade === unidadeSelecionada,
+      (item) => !secretariaSelecionada || item.secretaria === secretariaSelecionada,
 
       (item) => {
         if (filtroTempo !== "1d") return true;
@@ -62,15 +61,13 @@ export default function RelatorioUnidade() {
       }
     ];
 
-    return incidents.filter((item) =>
-      filtros.every((fn) => fn(item))
-    );
+    return incidents.filter((item) => filtros.every((fn) => fn(item)));
   };
 
   const incidentesFiltrados = aplicarFiltros();
 
   // ================================
-  //       EXPORTAÇÃO EXCEL
+  //        EXPORTAÇÃO EXCEL
   // ================================
   function exportarExcel() {
     const dados = incidentesFiltrados.map((item) => ({
@@ -105,137 +102,152 @@ export default function RelatorioUnidade() {
   }
 
   // ================================
-  //        RENDERIZAÇÃO
+  //              RENDER
   // ================================
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <>
+     
+      {/* ================================
+           CONTAINER DO RELATÓRIO
+          ================================ */}
+      <div className="max-w-4xl mx-auto p-4 md:p-6">
 
-      <h1 className="text-4xl font-bold text-[#0033A0] text-center mb-10">
-        Relatório por Unidade
-      </h1>
+        <h1 className="text-4xl font-bold text-[#0033A0] text-center mb-10">
+          Relatório por Unidade
+        </h1>
 
-      {/* FILTROS */}
-      <div className="
-        w-full max-w-3xl mx-auto bg-white
-        p-6 rounded-xl shadow border mb-10
-        flex flex-col gap-6
-      ">
-
-        <InputWrapper label="Filtrar por Unidade">
-          <SelectUnidade
-            value={unidadeSelecionada}
-            onChange={(e) => setUnidadeSelecionada(e.target.value)}
-          />
-        </InputWrapper>
-
-        <InputWrapper label="Filtrar por Secretaria">
-          <SelectSecretaria
-            value={secretariaSelecionada}
-            onChange={(e) => setSecretariaSelecionada(e.target.value)}
-          />
-        </InputWrapper>
-
-        <InputWrapper label="Filtrar por Tempo">
-          <select
-            value={filtroTempo}
-            onChange={(e) => setFiltroTempo(e.target.value)}
-            className="
-              w-full p-3 border border-gray-300 rounded-lg
-              bg-gray-50 focus:ring-2 focus:ring-[#0033A0]
-            "
-          >
-            <option value="">Sem filtro</option>
-            <option value="1d">Último 1 dia</option>
-            <option value="7d">Últimos 7 dias</option>
-            <option value="15d">Últimos 15 dias</option>
-            <option value="personalizado">Intervalo personalizado</option>
-          </select>
-        </InputWrapper>
-
-        {filtroTempo === "personalizado" && (
-          <div className="flex flex-col gap-4">
-            <InputWrapper label="Data Início">
-              <input
-                type="date"
-                value={dataInicio}
-                onChange={(e) => setDataInicio(e.target.value)}
-                className="p-3 border border-gray-300 rounded-lg bg-gray-50"
-              />
-            </InputWrapper>
-
-            <InputWrapper label="Data Fim">
-              <input
-                type="date"
-                value={dataFim}
-                onChange={(e) => setDataFim(e.target.value)}
-                className="p-3 border border-gray-300 rounded-lg bg-gray-50"
+        {/* FILTROS */}
+        <div
+          className="
+            w-full bg-white 
+            p-4 md:p-6 rounded-xl shadow-sm 
+            border border-gray-200/50 mb-8
+            grid grid-cols-1 md:grid-cols-3 gap-6
+          "
+        >
+          <div className="col-span-1">
+            <InputWrapper label="Filtrar por Unidade">
+              <SelectUnidade
+                value={unidadeSelecionada}
+                onChange={(e) => setUnidadeSelecionada(e.target.value)}
               />
             </InputWrapper>
           </div>
-        )}
 
-      </div>
+          <div className="col-span-1">
+            <InputWrapper label="Filtrar por Secretaria">
+              <SelectSecretaria
+                value={secretariaSelecionada}
+                onChange={(e) => setSecretariaSelecionada(e.target.value)}
+              />
+            </InputWrapper>
+          </div>
 
-      {/* BOTÃO EXCEL */}
-      <button
-        onClick={exportarExcel}
-        className="
-          w-full max-w-3xl mx-auto mb-6
-          bg-[#0033A0] hover:bg-[#002970]
-          text-white font-semibold p-3 rounded-lg
-          transition block
-        "
-      >
-        Baixar Relatório em Excel
-      </button>
+          <div className="col-span-1">
+            <InputWrapper label="Filtrar por Tempo">
+              <select
+                value={filtroTempo}
+                onChange={(e) => setFiltroTempo(e.target.value)}
+                className="
+                  w-full p-2.5 border border-gray-300 rounded-lg
+                  bg-gray-50 text-gray-700 text-sm
+                  focus:ring-2 focus:ring-[#0033A0]
+                "
+              >
+                <option value="">Sem filtro</option>
+                <option value="1d">Último 1 dia</option>
+                <option value="7d">Últimos 7 dias</option>
+                <option value="15d">Últimos 15 dias</option>
+                <option value="personalizado">Intervalo personalizado</option>
+              </select>
+            </InputWrapper>
+          </div>
 
-      {/* TABELA */}
-      <div className="
-        w-full max-w-3xl mx-auto
-        bg-white rounded-xl shadow border
-        p-4 overflow-x-auto
-      ">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-[#0033A0] text-white">
-              <th className="p-3">Unidade</th>
-              <th className="p-3">Secretaria</th>
-              <th className="p-3">Tipo</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Descrição</th>
-              <th className="p-3">Aberto em</th>
-              <th className="p-3">Fechado em</th>
-              <th className="p-3">Tempo Total</th>
-            </tr>
-          </thead>
+          {filtroTempo === "personalizado" && (
+            <>
+              <div className="col-span-1">
+                <InputWrapper label="Data Início">
+                  <input
+                    type="date"
+                    value={dataInicio}
+                    onChange={(e) => setDataInicio(e.target.value)}
+                    className="p-3 border border-gray-300 rounded-lg bg-gray-50"
+                  />
+                </InputWrapper>
+              </div>
 
-          <tbody>
-            {incidentesFiltrados.map((item, index) => (
-              <tr key={index} className="border-b hover:bg-gray-50">
-                <td className="p-3">{item.unidade}</td>
-                <td className="p-3">{item.secretaria}</td>
-                <td className="p-3">{item.tipo}</td>
-                <td className="p-3">{item.status}</td>
-                <td className="p-3">{item.descricao}</td>
-                <td className="p-3">
-                  {new Date(item.data).toLocaleString("pt-BR")}
-                </td>
-                <td className="p-3">
-                  {item.fechamento
-                    ? new Date(item.fechamento).toLocaleString("pt-BR")
-                    : "-"}
-                </td>
-                <td className="p-3">
-                  {item.fechamento
-                    ? calcularTempoAberto(item.data, item.fechamento)
-                    : "-"}
-                </td>
+              <div className="col-span-1">
+                <InputWrapper label="Data Fim">
+                  <input
+                    type="date"
+                    value={dataFim}
+                    onChange={(e) => setDataFim(e.target.value)}
+                    className="p-3 border border-gray-300 rounded-lg bg-gray-50"
+                  />
+                </InputWrapper>
+              </div>
+            </>
+          )}
+        </div>
+        <div className="w-full flex justify-center mt-6 mb-4">
+
+<ButtonExcel onClick={exportarExcel} />
+</div>
+
+        {/* TABELA */}
+        <div
+          className="
+            w-full 
+            bg-white rounded-xl shadow-sm 
+            border border-gray-200/60
+            p-4 overflow-x-auto
+          "
+        >
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#0033A0] text-white text-sm uppercase tracking-wide">
+                <th className="p-3 whitespace-nowrap">Unidade</th>
+                <th className="p-3 whitespace-nowrap">Secretaria</th>
+                <th className="p-3 whitespace-nowrap">Tipo</th>
+                <th className="p-3 whitespace-nowrap">Status</th>
+                <th className="p-3 whitespace-nowrap">Descrição</th>
+                <th className="p-3 whitespace-nowrap">Aberto em</th>
+                <th className="p-3 whitespace-nowrap">Fechado em</th>
+                <th className="p-3 whitespace-nowrap">Tempo Total</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
 
-    </div>
+            <tbody>
+              {incidentesFiltrados.map((item, index) => (
+                <tr
+                  key={index}
+                  className="border-b hover:bg-gray-50 text-sm transition"
+                >
+                  <td className="p-3 whitespace-nowrap">{item.unidade}</td>
+                  <td className="p-3 whitespace-nowrap">{item.secretaria}</td>
+                  <td className="p-3 whitespace-nowrap">{item.tipo}</td>
+                  <td className="p-3 whitespace-nowrap">{item.status}</td>
+                  <td className="p-3">{item.descricao}</td>
+                  <td className="p-3 whitespace-nowrap">
+                    {new Date(item.data).toLocaleString("pt-BR")}
+                  </td>
+                  <td className="p-3 whitespace-nowrap">
+                    {item.fechamento
+                      ? new Date(item.fechamento).toLocaleString("pt-BR")
+                      : "-"}
+                  </td>
+                  <td className="p-3 whitespace-nowrap">
+                    {item.fechamento
+                      ? calcularTempoAberto(item.data, item.fechamento)
+                      : "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </>
   );
 }

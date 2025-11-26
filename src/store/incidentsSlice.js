@@ -20,49 +20,63 @@ const incidentsSlice = createSlice({
         incident.historicoFechamentos = [];
       }
 
-      // ===========================
-      //   REABRIR INCIDENTE
-      // ===========================
-      if (status === "Não resolvido") {
-        incident.status = "Não resolvido";
-        incident.fechamento = null;   // Remove horário
+      // ========================================================
+      //              NOVO STATUS: EM ANDAMENTO
+      // ========================================================
+      if (status === "Em andamento") {
+        incident.status = "Em andamento";
+
+        // Mantém a data de fechamento caso já exista
+        // porque ainda não está resolvido em definitivo
         return;
       }
 
-      // ===========================
-      //   RESOLVER INCIDENTE
-      // ===========================
-      incident.status = "Resolvido";
+      // ========================================================
+      //                     REABRIR INCIDENTE
+      // ========================================================
+      if (status === "Não resolvido") {
+        incident.status = "Não resolvido";
+        incident.fechamento = null; // Remove a data
+        return;
+      }
 
-      // ************* CASO 1: PRIMEIRA RESOLUÇÃO *************
-      if (!incident.fechamento && !fechamentoManual) {
-        const agora = new Date().toISOString();
+      // ========================================================
+      //                     RESOLVER INCIDENTE
+      // ========================================================
+      if (status === "Resolvido") {
+        incident.status = "Resolvido";
 
-        incident.fechamento = agora;
+        // -------- CASO 1: PRIMEIRA RESOLUÇÃO --------
+        if (!incident.fechamento && !fechamentoManual) {
+          const agora = new Date().toISOString();
+
+          incident.fechamento = agora;
+
+          incident.historicoFechamentos.push({
+            editadoEm: agora,
+            novoFechamento: agora,
+            origem: "Automático",
+          });
+
+          return;
+        }
+
+        // -------- CASO 2: JÁ EXISTE FECHAMENTO (NÃO ALTERA) --------
+        if (!fechamentoManual) {
+          return;
+        }
+
+        // -------- CASO 3: FECHAMENTO EDITADO MANUALMENTE --------
+        incident.fechamento = fechamentoManual;
 
         incident.historicoFechamentos.push({
-          editadoEm: agora,
-          novoFechamento: agora,
-          origem: "Automático",
+          editadoEm: new Date().toISOString(),
+          novoFechamento: fechamentoManual,
+          origem: "Manual",
         });
 
         return;
       }
-
-      // ************* CASO 2: JÁ EXISTE FECHAMENTO *************
-      // Resolver novamente NÃO muda a data
-      if (!fechamentoManual) {
-        return;
-      }
-
-      // ************* CASO 3: EDIÇÃO MANUAL *************
-      incident.fechamento = fechamentoManual;
-
-      incident.historicoFechamentos.push({
-        editadoEm: new Date().toISOString(),
-        novoFechamento: fechamentoManual,
-        origem: "Manual",
-      });
     },
   },
 });
